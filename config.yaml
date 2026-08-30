@@ -11,7 +11,8 @@ redfox:
   hotspot_path: "/hotSpot/getListByPlatform"   # 实时热榜
   search_path:  "/dy/data/searchWork"          # 关键词作品搜索
   daily_path:   "/dy/search/likesRank"         # 动物赛道·点赞日榜
-  weekly_path:  "/dy/search/hotContentRank"    # 动物赛道·七日点赞飙升榜
+  weekly_path:  "/dy/search/hotContentRank"    # 七日/每日飙升榜（靠 source 字段分流：weeklyRank / dailyRank）
+  prohibited_path: "/cozeSkill/sensitiveWordSearch"  # 违禁词扫雷
 
 # 搜索环节参数
 search:
@@ -73,3 +74,21 @@ report:
 # 输出文件
 output:
   default_path: "宠物赛道对标报告.html"
+
+# 阶段③ 文案复刻：默认赛道 + 风格参考文件（可选）
+replicate:
+  track: "动物"                 # 从哪个赛道取对标标杆（默认动物）
+  style_ref: ""                 # 你的风格/人设参考文本文件路径（可选；留空则靠 --style-ref 传入）
+  prompt_out: "复刻写作提示词.md"   # 生成的复刻写作提示词保存路径
+
+# 阶段④ 效果验证：发布后查每日飙升榜的默认赛道
+verify:
+  track: "动物"
+  out: "效果验证_{date}.md"
+
+# 违禁词扫雷参数（阶段③第二环）
+prohibited_word:
+  platform: "抖音"
+  source: "抖音违禁词查询-WorkBuddy"
+  max_content_length: 3000      # 单次扫描最大字数，超长自动切块
+  max_total_length: 10000
