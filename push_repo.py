@@ -25,8 +25,8 @@ import subprocess
 API = "https://api.github.com"
 SKILL_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# 不上传的本地文件（脚本自身、无关产物）
-SKIP = {"push_repo.py", "push_to_github.py"}
+# 不上传的本地文件（无关产物；push_repo.py 自身会一并上传以保持仓库完整）
+SKIP = {"push_to_github.py"}
 
 
 def curl(method, path, token, body=None):
