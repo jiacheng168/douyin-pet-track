@@ -1,11 +1,13 @@
 # douyin-pet-track 技能元数据
 name: douyin-pet-track
-display_name: 宠物赛道抖音爆款对标工具
+display_name: 宠物赛道抖音爆款内容流水线
 description: >-
-  宠物赛道抖音爆款对标工具——一键拉取红狐 API 的实时热榜 / 宠物关键词搜索 / 动物赛道日榜 /
-  七日飙升榜，自动筛选宠物向作品并生成含可点击跳转链接的可视化 HTML 对标报告。
-  当用户要做宠物号抖音选题对标、爆款分析、热点捕捉，或想看「动物赛道里哪些宠物内容正在涨」时使用。
-version: "1.0.0"
+  宠物赛道抖音爆款内容全闭环工具——忠实复刻「抖音爆款内容专家」工作流：① 热点捕捉（实时热榜 / 宠物关键词搜索）
+  ② 爆款对标（动物赛道日榜 / 七日飙升榜，自动筛宠物向并生成可视化 HTML 报告）
+  ③ 文案复刻（蒸馏对标结构+你的人设风格 → 复刻写作提示词，并跑违禁词扫雷）
+  ④ 效果验证（发布后查每日点赞飙升榜，验证是否进榜）。
+  当用户要宠物号抖音选题对标、爆款分析、热点捕捉、复刻爆款文案、或验证作品数据表现时使用。
+version: "1.1.0"
 author: jiacheng168
 license: MIT
 homepage: https://github.com/jiacheng168/douyin-pet-track
@@ -14,28 +16,38 @@ tags:
   - 宠物
   - 爆款对标
   - 热点捕捉
+  - 文案复刻
+  - 效果验证
   - 养猫养狗
 triggers:
   - "拉一下宠物赛道的热榜+对标"
   - "宠物号抖音选题对标"
   - "动物赛道里哪些宠物内容在涨"
   - "生成宠物赛道对标报告"
+  - "复刻一条宠物爆款文案"
+  - "帮我扫一下这篇口播稿的违禁词"
+  - "验证我发的视频有没有进飙升榜"
   - "douyin pet track"
 input:
+  - name: --mode
+    type: string
+    required: false
+    default: "report"
+    description: "运行模式：report(默认,跑①②生成HTML报告) / replicate(跑③文案复刻) / verify(跑④效果验证)"
   - name: --key
     type: string
     required: false
     default: "$REDFOX_API_KEY"
-    description: 红狐 API Key；缺省读取环境变量 REDFOX_API_KEY
+    description: 红狐 API Key；缺省读取环境变量 REDFOX_API_KEY（report/verify 必填，replicate 仅带 --script 扫雷时必填）
   - name: --config
     type: path
     required: false
     default: "config.yaml"
-    description: 配置文件路径（可改搜索词、宠物关键词、榜单条数等）
+    description: 配置文件路径（可改搜索词、宠物关键词、榜单条数、赛道等）
   - name: --out
     type: path
     required: false
-    description: 输出 HTML 报告路径（缺省读 config output.default_path）
+    description: "输出路径：report=HTML；replicate=提示词md；verify=结果md"
   - name: --date
     type: date
     required: false
@@ -48,20 +60,52 @@ input:
     type: int
     required: false
     description: 各榜单展示条数，最大 50，缺省读 config report.top_n
+  - name: --topic
+    type: string
+    required: false
+    description: "[replicate] 本次命题主题，如「猫咪半夜跑酷怎么办」"
+  - name: --benchmark
+    type: string
+    required: false
+    description: "[replicate] 对标标杆文本/链接（粘贴爆款结构或原稿）"
+  - name: --style-ref
+    type: path
+    required: false
+    description: "[replicate] 你的风格/人设参考文本文件路径（可选）"
+  - name: --script
+    type: path
+    required: false
+    description: "[replicate] 已写好的草稿文件路径，顺便跑违禁词扫雷"
+  - name: --track
+    type: string
+    required: false
+    description: "[verify] 赛道，缺省读 config verify.track（默认 动物）"
+  - name: --work-title
+    type: string
+    required: false
+    description: "[verify] 已发布作品标题（用于匹配飙升榜）"
+  - name: --work-author
+    type: string
+    required: false
+    description: "[verify] 已发布作品作者（用于匹配飙升榜）"
+  - name: --work-url
+    type: string
+    required: false
+    description: "[verify] 已发布作品链接（用于匹配飙升榜）"
 output:
-  format: "HTML 报告文件 + 控制台摘要"
+  format: "HTML 报告 / Markdown 提示词 / Markdown 验证结果 + 控制台摘要"
   description: >-
-    生成可点击跳转链接的可视化 HTML 对标报告（含 KPI 卡片、热榜/搜索/日榜/飙升四张表、
-    宠物向高亮、对标锁定与建议），并在控制台打印 热榜/搜索/日榜(宠物向)/飙升(宠物向) 的条数摘要。
+    report 模式生成可点击跳转链接的可视化 HTML 对标报告；replicate 模式生成复刻写作提示词
+    （可选附带违禁词扫雷报告）；verify 模式生成每日飙升榜匹配结果。控制台均打印摘要。
 runtime:
   language: python
   entry: main.py
   dependencies: "零依赖（仅标准库 urllib）；可选 PyYAML 用于读取 config.yaml，缺失则使用内置默认值"
 workflow:
-  - "① 热点捕捉：拉取实时全站热榜 + 宠物关键词作品搜索"
-  - "② 爆款对标：拉取动物赛道点赞日榜 + 七日点赞飙升榜"
-  - "③ 宠物筛选：按 config 中 pet_filter.keywords 命中标题，标记宠物向"
-  - "④ 报告生成：输出 HTML 对标报告（含对标锁定与选题建议）"
+  - "① 热点捕捉（report 模式）：拉取实时全站热榜 + 宠物关键词作品搜索"
+  - "② 爆款对标（report 模式）：拉取动物赛道点赞日榜 + 七日点赞飙升榜（官方 source 字段分流 weeklyRank），筛宠物向生成 HTML 报告"
+  - "③ 文案复刻（replicate 模式）：蒸馏对标作品结构 + 你的风格分身 → 复刻写作提示词（multi-copywrite-alchemy 思路）；若带 --script 则跑违禁词扫雷（cozeSkill/sensitiveWordSearch）"
+  - "④ 效果验证（verify 模式）：发布后查每日点赞飙升榜（同一 hotContentRank 端点，source=抖音每日点赞飙升榜 → dailyRank），匹配已发布作品是否进榜"
 note: >-
-  本技能覆盖抖音爆款内容专家流水线的「阶段①热点捕捉 + 阶段②爆款对标」；
-  阶段③文案复刻、阶段④效果验证由同体系其他技能承接。
+  本技能是「抖音爆款内容专家」流水线的完整闭环实现：阶段①+②对标出报告、阶段③复刻出文案、阶段④验证数据。
+  复用红狐官方 skill 的接口与字段约定（hotSpot / searchWork / likesRank / hotContentRank / sensitiveWordSearch），业务逻辑与原流程一致。
