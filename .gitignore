@@ -1,0 +1,55 @@
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sbin/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ---------- 虚拟环境 ----------
+.venv/
+venv/
+env/
+ENV/
+
+# ---------- 依赖 / 锁文件 ----------
+pip-log.txt
+pip-delete-this-directory.txt
+requirements.lock
+
+# ---------- 测试 / 覆盖率 ----------
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# ---------- 工具 / 编辑器 ----------
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ---------- 本项目生成的产物（运行后产生，不入库） ----------
+*对标报告.html
+*报告.html
+宠物赛道对标报告.html
+狗狗对标.html
+# 注意：examples/ 下的 output.html 是「演示样例」，需要入库，不要忽略
